@@ -1,0 +1,181 @@
+Very abstract Attribute Bases Access Control Model 
+
+We have an unbounded number of attribute names, the set of which is denoted by,
+                   A={a_1, a_2, ....} 
+
+For each attribute name a_i in A, we have an associated possibly infinite domain d_{a_i}.
+The set of all such domains are represented by D={d_{a_1}, d_{a_2}}.  Given an attribute 
+name a_n in A, we have a total map, denoted by dom, that maps attribute names to their 
+appropriate domain. Formally, dom: A -> D. 
+
+Given the domains in D, we have a set of operators OP.
+For each operator op in OP, arity(op) is its arity, and dom(op,i) is the domain of the operator for operand 1<=i<=arity(op), and dom(op) is the domain of the result of op.
+
+
+
+Our model has an abstract authorization state, which we denote by \pi, that contains an unbounded number of entities. 
+An entity is a partial mapping, denoted by \gamma_j, that maps attribute names to values from their appropriate domains.
+\gamma_j : forall x \in A. dom(x) u {\bot} ??? 
+An example of an entity could an object, a subject, a user, etc. As we want to enable existence of unbounded number 
+of users, objects, subjects, etc., we allow to have unbounded number of entities. We denote the set of all possible states 
+as \Pi. 
+
+A request, r, is a finite sequence of attribute name-value pairs. We represent the set of all requests with R. 
+Our model also have an additional component, which we call the policy function. A policy function, \psi takes 
+as argument a request r and an authorization state \pi, and returns a pair <d, \pi'>, where d represents the decision 
+d, where d in {Allow, Deny}, and \pi' represents a new authorization state. Formally, \Psi : R X \PI -> {Allow, Deny} X \PI. 
+
+Abstract Language To Specify Policy Function, \Psi:
+
+<POLICY-FUNCTION>   ::= <STATEMENTS> 
+<EXPRESSION>  ::= <CONSTANT> | <IDENTIFIER> |
+                                     "LET" <IDENTIFIER> "<-" <EXPRESSION> "IN" <EXPRESSION> |
+                                     "IF"  "(" <CONDITIONAL-EXPRESSION> ")" "THEN" <EXPRESSION> "ELSE" <EXPRESSION> "ENDIF"
+                                      "SWITCH" 
+
+
+<CONDITIONAL-EXPRESSION> ::= <CONDITIONAL-EXPPRESSION> <BINARY-LOGICAL-CONNECTIVE> <CONDITIONAL-EXPRESSION> |
+                  <UNARY-LOGICAL-CONNECTIVE> <CONDITIONAL-EXPRESSION> | 
+                  <EXPRESSION> <BINARY-OPERATOR> <EXPRESSION> | 
+                  <UNARY-OPERATOR> <EXPRESSION> 
+
+
+
+BINARY-LOGICAL-CONNECTIVE == "AND, OR, XOR, ->"
+UNARY-LOGICAL-CONNECTIVE == "!"
+<BINARY-OPERATOR> = "> , < , >=, <= , =, c=, c, =), ) 
+
+
+So how should we write it down..
+POlicy function has two parts: Condition and Side effect. 
+Condition follows the syntax and semantics of predicate-logic. 
+The side effect portion has a list of two things::
+    A label and a list of atomic actions.
+    Label ::= ON-ALLOW | ON-DENY ...
+
+
+I am thinking about the policy function to be specified in the following way:....
+
+<CONDITION_1>: 
+    ON_TRUE: <LIST OF SIDE EFFECTS> 
+    ON_FALSE: <LIST OF SIDE EFFECTS>
+<CONDITION_2>:  
+    ON_TRUE: <LIST OF SIDE EFFECTS> 
+    ON_FALSE: <LIST OF SIDE EFFECTS>
+<DEFAULT>: 
+
+OK, I understand. Makes sense.
+
+Does a default make sense? Wouldn't you just reject?
+Right...
+I could see logging/auditing in an implementation, but in the abstract... :-)
+
+Question?
+Do we want the conditions to be mutually exclusive?????
+Do we 
+I don't see why we would force it. Would be easier if they were, but not necessary, I think.
+What will be the semantics then??? 
+The one you had before with SEQ, I guess. You already have an order, so do it like that.
+I am not liking it for a specific reason...
+I mean it looks like firewall policy...THe first one applies
+What if we want something more complicated??
+Example: if the first k allows it, it should be allowed?? Rather than enumerating all the conditions...
+Can we have some local side effects + global one ...
+If the conditions are satisfies the side effects will be carried out ..
+But before the end there will be a kind of function that will take decisions for each of them and make the final decision..
+We can leave it abstract ....I mean the combination part ....
+
+OK, I see what you mean. Problems I see:
+    1) That sounds like it will be hard to make any formal statements over
+    2) Consistency: what if two "opposite" side effects are allowed and stuff
+But sure, you could formalize something like that.
+    
+I mean think about the situation about HIPAA, positive norms and negative norms...
+In the current semantics...We cannot encode them...
+Sure you can. You just have fucked-up complicated conditions. :-)
+Right ....
+More like what?
+
+Can we make an analysis problem out of it?? I mean your second point....for specific cases..
+for concrete languages....Kind of like sanity checks...
+Is there any request for which you will end up doing opposite things...Lets say the side effects 
+have very simple format. You know the inverse of each atomic action....
+Yeah, should be, but I'm not sure it's that interesting.
+You'd simply look at combinations of condition-side effect pairs/triples/etc.
+I mean it is better than no analysis :-) Right ...I was also thinking about giving typing judgements to ensure people write well-typed policies 
+But that seems kind of difficult ...
+Yeah. It depends on how well you can tell what the atomic actions are impacting. :-)
+
+BTW, I think there's not a lot to gain by leaving the atomic actions abstract. The model only allows so much. Adding a whole entity, deleting one, adding/removing/updating attributes. Not really much else I can see...
+Yeah...I was thinking along the same line ...I mean you will have add/remove entity, add/remove/update its mapping...Nothing more ...
+Good thing...We leave the shitty entity abstract. For obligations, you will have an obligation entity, add shit into it...the same with logging ....
+So, I concur with you on that ...Now...One more thing....How are we going to find entitys ....I mean for add/remove/update its mapping. 
+Do we need a mechanism to find it. Or leave it abstract for the time being ....This will be given to us as an argument of the request ....???
+????
+This is the very good question. I think it depends on how the actions are specified. If we go with something like your SQL-like stuff, we could do a update-whatever-satisfies thing.
+
+You mean: SIDE EFFECT HAVE THE FOLLOWING FORM:
+    
+    <SEARCH-CONDITION> : ACTION 
+    Example: user=Alice /\ division = cardiology : update position=Head_Nurse...
+
+    End effect yes, but I was also thinking with binders, so
+                      user=$user /\ division = cardiology : ....
+    where the binder is to the policyFunction input data
+
+Yeah...
+In a sense, it's similar to the <CONDITION>, a formula in the logic (extended to include the input), but evaluated over single entities
+
+I know it's not pretty. But else we would need a handle to something.
+
+What do you mean by the part "Evaluated over single entities"???
+So the <CONDITION> should be able to be evaluated over the whole state. If the logic has quantifiers, you should be able to say something like: forall \lambda in \pi. \lambda.salary < input.salary
+You know what I mean?
+
+For the decision for the side effect, however, you only want it with respect to the entity you might select for an update, I think.
+
+Let me write down in more details : ....FORMAT OF POLICY FUNCTION......(OK???) This seems fine to me.
+
+c1 = <CONDITION_1>:
+    ON_TRUE: 
+<SEARCH CONDITION> : ATOMIC ACTION %%% SIDE EFFECT ...
+.......................
+    ON_FALSE:
+................
+c2 = <CONDITION_2>: 
+    ...................
+.
+.
+.
+cn = <CONDITION_n>
+
+final_decision:= policy_combiner(c1,...,cn) ; 
+
+ON_FINAL_DECISION_TRUE:
+    ...................
+ON_FINAL_DECISION_FALSE:
+    .................
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
