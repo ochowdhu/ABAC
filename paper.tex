@@ -1,0 +1,142 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{cite}
+\usepackage{algorithm}
+\usepackage[noend]{algorithmic}
+\usepackage{xspace}
+\usepackage{enumerate}
+\usepackage{array} 
+\usepackage{color}
+% \usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{subfig}
+\usepackage{suffix}
+% \usepackage{hhline}
+% \usepackage{cases}
+\usepackage{amsfonts}
+\usepackage{multirow}
+% \usepackage{ltlfonts}
+% \usepackage{myutils}
+\usepackage{thmtools}
+\usepackage{mathtools}
+% \usepackage{thmtools}
+\usepackage{placeins}
+\usepackage{changepage}
+% \usepackage{subfig}
+% \usepackage{tikz}
+% \usetikzlibrary{arrows,shapes, matrix,calc,positioning}
+% \usepackage{times}            
+% \usepackage{latexsym}
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage{alltt}
+\usepackage{float}
+% \usepackage{calc}
+% \let\proof\relax
+% \let\endproof\relax
+% \usepackage{amsthm}
+
+\usepackage{amsmath}
+% \usepackage{setspace}
+% \usepackage{relsize}
+% \usepackage{pdfpages}
+% \usepackage{myutils}
+\usepackage{graphicx}
+% \usepackage{cite}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{proof}
+\usepackage{amsfonts}
+% \usepackage{mathpartir}
+
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes, matrix,calc,positioning,chains}
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+\newcommand{\etal}{\textit{et al.}\xspace}
+\newcommand{\ie}{\textit{i.e.}\xspace}
+\newcommand{\eg}{\textit{e.g.}\xspace}
+\newcommand{\viz}{\textit{viz.}\xspace}
+\newcommand{\etc}{\textit{etc.}\xspace}
+\newcommand{\state}{\ensuremath{\pi}\xspace}
+\newcommand{\statedown}[1]{\ensuremath{\pi_{#1}}\xspace}
+\newcommand{\stateset}{\ensuremath{\Pi}\xspace}
+\newcommand{\policyfunc}{\ensuremath{\Psi}\xspace}
+\newcommand{\planguage}{\ensuremath{\mathbf{\mathcal{AAPL}}}\xspace}
+\newcommand{\Paragraph}[1]{\vspace{2pt}\noindent\textbf{\textit{#1}}}
+\newcommand{\cD}{\ensuremath{\mathcal{D}}\xspace}
+\newcommand{\cR}{\ensuremath{\mathcal{R}}\xspace}
+\newcommand{\cA}{\ensuremath{\mathcal{A}}\xspace}
+\newcommand{\funcname}[1]{\textbf{\texttt{#1}}}
+\newcommand{\dom}{\ensuremath{\Delta}\xspace} %domain
+\newcommand{\domop}{\funcname{opDom}\xspace} %domain
+\newcommand{\OP}{\ensuremath{\mathcal{OP}}\xspace}
+\newcommand{\arity}{\ensuremath{\iota}\xspace}
+\newcommand{\entity}{\ensuremath{\lambda}\xspace}
+\newcommand{\Allow}{\ensuremath{\mbox{Allow}}\xspace}
+\newcommand{\Deny}{\ensuremath{\mbox{Deny}}\xspace}
+\newcommand{\op}{\ensuremath{\mu}\xspace}
+\newcommand{\abac}{\ensuremath{\Upsilon}\xspace}
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+
+
+%opening
+\title{Towards A Family of Attribute-based Access Control Models and its Policy Specification Languages}
+\author{}
+\date{}
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\section{An Abstract Attribute-Based Access Control Model (\abac)}
+Formally our abstract model, which we denote by \abac, has the following form 
+$\abac=\langle\cA, \cD, \dom, \OP, \state, \policyfunc\rangle$. 
+We have an unbounded number of \emph{attribute names} (\eg, user-name, role), the set of which is denoted by, $\cA=\{a_1, a_2,\ldots\}$.  
+For each attribute name $a_i\in\cA$ where $i\in\mathbb{N}$, we have an associated, possibly infinite, domain $d_{a_i}$ (\eg, $\mathbb{N}$, 
+string, set of strings, list) from which $a_i$ can assume values from. 
+The set of all such domains are represented by $\cD=\{d_{a_1}, d_{a_2}, \ldots\}$.  Given an attribute 
+name $a_i \in \cA$, we have a total map, denoted by \dom, that maps attribute names to their 
+appropriate domain. Formally, $\dom: \cA \rightarrow \cD$. 
+Given the domains in \cD, we have a set of associated operators \OP which can be applied 
+to the values (\ie, constants) in the domain. 
+For each operator $\op \in \OP$, $\arity(\op)$ is its arity, 
+and $\domop(\op, i)$ is the domain of the operator for operand $i$, where $1\leq i\leq \arity(\op)$, 
+and $\domop(\op)$ is the domain of the result of $\op$.
+
+Our model has an \emph{abstract authorization state}, which we denote by \state, that contains an unbounded number of entities. 
+An \emph{entity} is a total map, denoted by $\entity_j$, that maps attribute names to values from their appropriate domains.
+Formally, for any $\entity_j$, the following holds: $\forall x \in \cA.\; \entity_j(x) \in \dom(x) \cup \{\bot\}$. 
+An example of an entity could an object, a subject, a user, \etc As we want to facilitate existence of unbounded number 
+of users, objects, subjects, \etc, in our system, we allow to have unbounded number of entities. 
+We denote the set of all possible authorization states as \stateset. 
+
+A \emph{request}, $r$, is a finite sequence of attribute name-value pairs of form $\langle an, av\rangle$ 
+where $an\in\cA$ and $av\in\dom(an)$. We represent the set of all requests with \cR. 
+Our model also have an additional component, which we call the policy function. A \emph{policy function}, \policyfunc takes 
+as argument a request $r$ and an authorization state \state, and returns a pair $\langle d, \state'\rangle$, where $d$ represents the \emph{decision}, 
+where $d \in \{\Allow, \Deny\}$, and $\state'$ represents a new authorization state. 
+Formally, $\policyfunc : \cR \times \stateset \rightarrow \{\Allow, \Deny\} \times \stateset$. 
+The new state $\state'$ reflects any side effects that might have been the result of carrying out the request. For instance, 
+when a user requests to create an object and after consulting the previous authorization state \state and the authorization requirement, 
+the policy function \policyfunc 
+decides to allow the action, it might also create the object, relevant information of which (\eg, attributes, identifier, \etc) 
+are stored in the new state $\state'$. 
+
+\section{Specification Language for \policyfunc in \abac} 
+
+
+
+\end{document}
