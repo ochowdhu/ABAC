@@ -156,9 +156,94 @@ ON_FINAL_DECISION_TRUE:
 ON_FINAL_DECISION_FALSE:
     .................
 
+Note February 11th, 2014..
 
 
 
+OK? lets start??
+
+First and most important question: 
+    What is the formal definition of the safety problem?? We do not have specific stuff for users, objects, or rights???
+    The problem could be defined as an entity getting an attribute??
+    Or a specific entity existing?
+    
+    For the safety undecidability result: first we show that diophantine equation can be encoded in our condition? Hence, it is undecidable. 
+    But this is not very interesting..We want to know whether we can some how loosen the condition logic and show undecidability.. For this, 
+    we basically use propositional logic which is decidable. Show undecidability with that. Possibly by encoding HRU into our model???
+    Makes sense??
+
+  Yeah, would make sense. We have to see about propositional, though. :-)
+Yeah, if we cannot use propositional logic to show undecidability then this is not an interesting result.
+Safety being undecidable I mean....
+Even with mode-checked stuff? I mean a small fragment of predicate logic?
+YEah that is the alternative result we might show ...
+I mean if the fucking propositional logic does not work...
+I mean I was saving mode checking for showing that even with first order logic we can actually have decidability if it passes the mode check...
+OK. So let's start encoding something, I guess?
+Yes, exactly...
+
+OK HRU:
+    
+We have subjects and objects. objects =) subjects. we have permissions...we then have the freaking matrix....
+finally we have the commands:
+    commands are like following: 
+        (1) Take arguments...
+        (2) Have a condition...
+        (3) Have a unique name ..
+        (4) When condition is satisfied a set of atomic actions...
+        (5) Atomic actions are of form: 
+            (i) CREATE PRINCIPAL/OBJECT
+      (ii) DELETE PRINCIPAL/OBJECT
+     (iii) ADD a right r in the cell M[s,o]
+     (iv) Remove a right r from the cell M[s,o]
+DONE!!!!  :-) So: trivial or obvious?
+
+Remind me: conditions are of what form? And the creation and deletion and and s and o are specified as constants?
+
+Conditions are boolean formula made up from the following atomic formula (You can assume conjunction of these kind of atoms) 
+    a in M[s, o] or a not in M[s, o] 
+    Let me check the creation...OK???
+OK. Question for me is whether there's a binder. So you can refer to that new principal/object in a later atomic action.
+
+Yes...
+You do create subject s / delete subject s / create object s / delete object o 
+They are bound by the input arguments...I think...
+So all the s and o must be arguments? Which would be nice. :-)
+They are arguments.. You can use these later ...
+I mean you can do something like following
+
+HELLO(s, o, r)
+some shit condition:
+    create subject s 
+    create object o 
+    insert r into M[s, o] 
+
+OK. That makes at least that easy. Because we still don't have binders in the action list. :-)
+Problem might be the a not in M[s,o]
+Are we gonna assume a predicate for that like the bared stuff?
+Yeah :-) I know where are you going ...So yes
+
+I have several questions in general about modeling this shit ....
+OK.
+How are we going to keep the matrix...
+Have an entity for each cell
+type will be matrix-cell...
+user attribute will be SUBJECT
+object attribute will be OBJECT
+right attribute will be "READ/WRITE/EXECUTE/OWN/MYASS"
+Right attribute domain is a set??? Right...
+Almost, I think.
+So I think cells are good.
+But we need a set-valued attribute. Else "not in" is "not exists e."
+OK.
+Now I don't see a problem. We should be able to do this propositional.
+OK Gampa...Bigger question....Do we need some variables in the fucking shitty..<ACTION-LIST> 
+so that we can save some shit in the <VARIABLE> and fucking use it later>>>
+ALthough I do not see 
+Of course. The search condition and values in the pairs should be able to reference the input.
+I mean do we need intermediate variables....
+Not for this example, I think
+OK..,.....
 
 
 
