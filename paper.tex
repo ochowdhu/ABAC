@@ -1,4 +1,5 @@
-\documentclass[a4paper,10pt]{article}
+% \documentclass[a4paper,10pt]{article}
+\documentclass{sig-alternate}
 \usepackage[utf8]{inputenc}
 
 \usepackage{hyperref}
@@ -68,7 +69,7 @@
 \newcommand{\statedown}[1]{\ensuremath{\pi_{#1}}\xspace}
 \newcommand{\stateset}{\ensuremath{\Pi}\xspace}
 \newcommand{\policyfunc}{\ensuremath{\Psi}\xspace}
-\newcommand{\planguage}{\ensuremath{\mathbf{\mathcal{AAPL}}}\xspace}
+\newcommand{\planguage}{\ensuremath{\mathbf{\mathcal{GPL}}}\xspace}
 \newcommand{\Paragraph}[1]{\vspace{2pt}\noindent\textbf{\textit{#1}}}
 \newcommand{\cD}{\ensuremath{\mathcal{D}}\xspace}
 \newcommand{\cR}{\ensuremath{\mathcal{R}}\xspace}
@@ -83,6 +84,17 @@
 \newcommand{\Deny}{\ensuremath{\mbox{Deny}}\xspace}
 \newcommand{\op}{\ensuremath{\mu}\xspace}
 \newcommand{\abac}{\ensuremath{\Upsilon}\xspace}
+\newcommand{\policy}{\ensuremath{\varphi}\xspace}
+\newcommand{\cL}{\ensuremath{\mathcal{L}}\xspace}
+\newcommand{\cP}{\ensuremath{\mathcal{P}}\xspace}
+\newcommand{\cB}{\ensuremath{\mathcal{B}}\xspace}
+\newcommand{\true}{\ensuremath{\mathbb{T}}\xspace}
+\newcommand{\false}{\ensuremath{\mathbb{F}}\xspace}
+\newcommand{\pred}[1]{\ensuremath{\mathsf{#1}}\xspace}
+\newcommand{\foralle}{\ensuremath{\funcname{FORALL-ENTITY}}\xspace}
+\newcommand{\existse}{\ensuremath{\funcname{EXISTS-ENTITY}}\xspace}
+\newcommand{\cV}{\ensuremath{\mathcal{V}}\xspace}
+\newcommand{\cW}{\ensuremath{\mathcal{W}}\xspace}
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
@@ -101,20 +113,26 @@
 
 \end{abstract}
 
+% \terms{Theory}
+
+\keywords{ABAC, First Order Logic, Specification Language} % NOT required for Proceedings
+
 \section{An Abstract Attribute-Based Access Control Model (\abac)}
+\label{sec:model}
 Formally our abstract model, which we denote by \abac, has the following form 
-$\abac=\langle\cA, \cD, \dom, \OP, \state, \policyfunc\rangle$. 
+$\abac=\langle\cA, \cD_{\cA}, \dom,  \state, \policyfunc\rangle$. 
 We have an unbounded number of \emph{attribute names} (\eg, user-name, role), the set of which is denoted by, $\cA=\{a_1, a_2,\ldots\}$.  
 For each attribute name $a_i\in\cA$ where $i\in\mathbb{N}$, we have an associated, possibly infinite, domain $d_{a_i}$ (\eg, $\mathbb{N}$, 
 string, set of strings, list) from which $a_i$ can assume values from. 
-The set of all such domains are represented by $\cD=\{d_{a_1}, d_{a_2}, \ldots\}$.  Given an attribute 
+The set of all such domains are represented by $\cD_{\cA}=\{d_{a_1}, d_{a_2}, \ldots\}$.  Given an attribute 
 name $a_i \in \cA$, we have a total map, denoted by \dom, that maps attribute names to their 
-appropriate domain. Formally, $\dom: \cA \rightarrow \cD$. 
-Given the domains in \cD, we have a set of associated operators \OP which can be applied 
-to the values (\ie, constants) in the domain. 
-For each operator $\op \in \OP$, $\arity(\op)$ is its arity, 
-and $\domop(\op, i)$ is the domain of the operator for operand $i$, where $1\leq i\leq \arity(\op)$, 
-and $\domop(\op)$ is the domain of the result of $\op$.
+appropriate domain. Formally, $\dom: \cA \rightarrow \cD_{\cA}$. 
+
+% Given the domains in $\cD_{\cA}$, we have a set of associated operators \OP which can be applied 
+% to the values (\ie, constants) in the domain. 
+% For each operator $\op \in \OP$, $\arity(\op)$ is its arity, 
+% and $\domop(\op, i)$ is the domain of the operator for operand $i$, where $1\leq i\leq \arity(\op)$, 
+% and $\domop(\op)$ is the domain of the result of $\op$.
 
 Our model has an \emph{abstract authorization state}, which we denote by \state, that contains an unbounded number of entities. 
 An \emph{entity} is a total map, denoted by $\entity_j$, that maps attribute names to values from their appropriate domains.
@@ -123,11 +141,11 @@ An example of an entity could an object, a subject, a user, \etc As we want to f
 of users, objects, subjects, \etc, in our system, we allow to have unbounded number of entities. 
 We denote the set of all possible authorization states as \stateset. 
 
-A \emph{request}, $r$, is a finite sequence of attribute name-value pairs of form $\langle an, av\rangle$ 
-where $an\in\cA$ and $av\in\dom(an)$. We represent the set of all requests with \cR. 
+A \emph{request}, $r$, is a finite sequence of attribute name-value pairs of form $\langle a_n, a_v\rangle$ 
+where $a_n\in\cA$ and $a_v\in\dom(a_n)$. We represent the set of all requests with \cR. 
 Our model also have an additional component, which we call the policy function. A \emph{policy function}, \policyfunc takes 
-as argument a request $r$ and an authorization state \state, and returns a pair $\langle d, \state'\rangle$, where $d$ represents the \emph{decision}, 
-where $d \in \{\Allow, \Deny\}$, and $\state'$ represents a new authorization state. 
+as argument a request $r$ and an authorization state \state, and returns a pair $\langle \rho, \state'\rangle$, where $\rho$ represents the \emph{decision}, 
+where $\rho \in \{\Allow, \Deny\}$, and $\state'$ represents a new authorization state. 
 Formally, $\policyfunc : \cR \times \stateset \rightarrow \{\Allow, \Deny\} \times \stateset$. 
 The new state $\state'$ reflects any side effects that might have been the result of carrying out the request. For instance, 
 when a user requests to create an object and after consulting the previous authorization state \state and the authorization requirement, 
@@ -135,7 +153,158 @@ the policy function \policyfunc
 decides to allow the action, it might also create the object, relevant information of which (\eg, attributes, identifier, \etc) 
 are stored in the new state $\state'$. 
 
-\section{Specification Language for \policyfunc in \abac} 
+\section{Specification Language for Policy Function in \abac} 
+\label{sec:spec}
+We now introduce the readers with our specification language for specifying policy function \policyfunc in \abac. 
+We use \cL to represent our language. 
+The syntax of \cL is presented in Figure~\ref{fig:syntax}. 
+Each policy function is made up of finite number of policy rules. 
+For each policy rule, $p_i$, we evaluate a condition, $\policy_i$, on the state \state and request $r$. 
+The result of evaluating a condition is saved on a boolean variable, $c_i$.  
+Furthermore, for each policy rule $p_i$, there are two possible blocks, each of which 
+is optional, \funcname{ON-TRUE} and \funcname{ON-FALSE}. Each of which can be followed 
+by a finite number of $\funcname{SEARCH-COND}: \funcname{ATOMIC-ACT-LIST}$ blocks  
+where $\funcname{SEARCH-COND}$ is a condition 
+and $\funcname{ATOMIC-ACT-LIST}$ 
+is a finite sequence of atomic actions that are used to make changes to the input authorization state $\state$ to 
+obtain the output authorization state $\state'$. The possible atomic actions have one of the following forms:\\ 
+% \begin{enumerate}\setlength{\itemsep}{0em}
+%  \item 
+ \noindent(i) $\funcname{CREATE}/\funcname{DELETE  } \funcname{entity}$ or\\ 
+\noindent(ii) $\funcname{INSERT}/\funcname{DELETE}/\funcname{UPDATE } 
+\langle\funcname{$attribute^{\mbox{\texttt{name}}}$}, \funcname{$attribute^{\mbox{\texttt{value}}}$}\rangle$. 
+% \end{enumerate}
+
+% $\funcname{DELETE}/\funcname{CREATE  } \funcname{entity}$ or 
+% $\funcname{DELETE}/\funcname{INSERT}/\funcname{UPDATE } 
+% \langle\funcname{attribute-name}, \funcname{attribute-value}\rangle$. 
+
+We parameterize our language with \emph{predicate logic} (denoted by \planguage) to represent the different 
+conditions (\eg,  \funcname{SEARCH-COND}, $\policy_1$) we use in the syntax of \cL. 
+We present a detailed description of the syntax and semantics of \planguage in the 
+following section (cf. Section~\ref{sec:condition}).  
+$\bigoplus$ is a computable function designed by the policy-writer which is used 
+for combining the evaluation results of the different policy rules to obtain a unified 
+decision. We intentionally leave the syntax of $\bigoplus$ abstract, readers can imagine a 
+language like~\cite{NINGHUI-POLICY-COMBINATION,POLICY-ALGEBRA}, 
+to be used to specify $\bigoplus$. Finally, we have two more optional blocks, $\funcname{ON-ALLOW}$ and $\funcname{ON-DENY}$, 
+each of which can be followed by  a finite number of $\funcname{SEARCH-COND}: \funcname{ATOMIC-ACT-LIST}$ blocks. 
+
+\begin{figure}[t]
+\centering
+$
+\begin{array}{lll}
+% \policyfunc(r, \state) & : & \langle\rho, \state'\rangle& &\\
+\funcname{begin}   & & \\
+ c1 \leftarrow   \funcname{EVAL COND  } \policy_1 &  &\\[2ex]
+     \funcname{ON-TRUE}: & &\\
+       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
+       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
+     \funcname{ON-FALSE}: & &\\
+       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
+  \vdots & \vdots & \\[2ex]
+ cn \leftarrow  \funcname{EVAL COND  } \policy_n &  &\\[2ex]
+     \funcname{ON-TRUE}: & &\\
+       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
+     \funcname{ON-FALSE}: & &\\
+       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
+       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
+       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\[2ex]
+ \rho\leftarrow  \bigoplus(c_1,\ldots,c_n)  & &\\[2ex]
+     \funcname{ON-ALLOW}: & &\\
+       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
+     \funcname{ON-DENY}: & &\\
+       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
+\funcname{end}    & &
+\end{array}
+$
+\caption{Syntax of \cL.\label{fig:syntax}} 
+\end{figure}
+
+We now informally describe the semantics of our language. The \policyfunc checks each policy rule $p_i$ by 
+evaluating its corresponding condition  $\policy_i$ with respect to the input request $r$ and the 
+input authorization state \state. The evaluation result, which is a boolean, is stored in the boolean 
+variable $c_i$. Whenever the policy evaluation is true (resp., false), the block \funcname{ON-TRUE} (resp., \funcname{ON-FALSE}) 
+is activated. Then the evaluation checks each $\funcname{SEARCH-COND}$ and when it is evaluated to be true, 
+the atomic actions in the $\funcname{ATOMIC-ACT-LIST}$ block are carried out. The $\funcname{SEARCH-COND}$ is used to 
+select entities to whom the atomic actions in the $\funcname{ATOMIC-ACT-LIST}$ block must be applied. 
+The $\funcname{SEARCH-COND}$ is also evaluated with respect to the input request $r$ and also the input authorization state $\state$. 
+Once the evaluation has completed evaluating all the policy rules, $p_i$, the evaluation result for each $p_i$, $c_i$, is fed in to 
+a policy combining function, $\bigoplus$, which has the signature $\bigoplus : 2^{2^{\{\true, \false\}}}\rightarrow\{\Allow, \Deny\}$, where 
+% $\mathbb{B}=\{\true, \false\}$, in which 
+ \true and \false, respectively, denote logical true and false. Once the final decision, $\rho$, has been made, if the final decision is 
+ \Allow (resp., \Deny) , then the operations on the corresponding \funcname{ON-ALLOW} (resp.,  \funcname{ON-DENY}) block is carried out. 
+
+\subsection{Syntax and Semantics of \planguage}
+\label{sec:condition}
+To specify the condition (\ie, $\policy_1$, \funcname{SEARCH-CONDITION}) in \cL we use a fragment of guarded first order predicate logic which we call \planguage. 
+The syntax of our language is given in Figure~\ref{fig:logic}. In \planguage, we have an infinite set of \emph{variables}, $\cV = \cV_{\cA} \cup \cW$, 
+where variables in $\cV_{\cA}$ correspond to attribute names in \cA. We use \cW to represent 
+a set of unrestricted variables. We have the \emph{domain} \cD from which variables in \cV can assume values (\ie, \emph{constants}) from. 
+We have $\cD = \cD_{\cA}\cup \cD_{\cW}$. We use $x, y, z$ to denote variables in our language. Any variable $x\in\cV_{\cA}$ 
+can only assume values from the domain $\cD_{\cA}$, whereas, any variable $y\in\cV_{\cW}$ can only assume values from the 
+domain $\cD_{\cW}$. We assume constants have rigid interpretation. 
+We have a  finite set of \emph{predicates} available to be used in our language, which we denote by \cP. We use 
+$\pred{p}, \pred{q}$ to denote predicates in our language. We have \emph{terms}, denoted by $t$, in our language which are either 
+\emph{variables} or \emph{constants}. We have the basic logical connectives ($\wedge, \vee$) and also have quantifiers ($\forall, \exists$). 
+We require a restricted form for universal quantifiers, \emph{guarded fragment}. For each universally quantified formula $\forall \vec{x}.(\policy_1\rightarrow\policy_2)$, 
+we require a guard (\ie, $\policy_1$). Note, we intentionally leave out the negation operator ($\neg$) from \planguage and this will be discussed 
+later. In \planguage, we additionally allow two specific kinds of quantifiers, \foralle and \existse. They are used to 
+iterate over the entities in the state \state. 
+We use $e$ to denote a variable ranging over the entities in \state. 
+A variable is \emph{free} in a formula \policy, if it is not bound by any quantifier. 
+In the same vein, a variable is \emph{bound} if it is not free. We assume we have a function \funcname{fv} which takes as input 
+a \planguage formula \policy and returns the set of free variables. 
+
+We have an interpretation $\Gamma$, which maps ground atoms (or, relations), $\pred{p}(\vec{t})$ to either \true or \false. 
+We keep the interpretation $\Gamma$ abstract for \planguage. For instance, one can assume the ground atoms are 
+kept in a deductive database and for which we can use stratified datalog to query the database. 
+This enables us to abstractly define the interpretation of the predicate $\funcname{isHighRole}(r_c, r_h)$ 
+in the following way where $\funcname{isHighRole}(r_c, r_h)$ holds for a particular $r_c$ and $r_h$, if 
+the role $r_h$ is a higher role than the role $r_c$. Moreover, the predicate $\funcname{isParentRole}(r_c, r_h)$ holds 
+for a specific $r_c$ and $r_h$, if $r_h$ is immediately above $r_c$ in the role hierarchy. This abstraction enables us 
+to model RBAC role-hierarchy without having to introduce an operator for taking finite transitive closure or allowing 
+recursion in the logic itself.
+
+\noindent
+\begin{small}
+$
+\begin{array}{ll}
+\funcname{isHighRole}(r_c, r_h) :- &\funcname{isParentRole}(r_c, r_i),\funcname{isHighRole}(r_i, r_h) ;\\
+\funcname{isHighRole}(r_c, r_h) :- &\funcname{isParentRole}(r_c, r_h) ;
+\end{array}
+$
+\end{small}
+
+\begin{figure}[t]
+\centering
+$
+\begin{array}{lll}
+\policy & ::= & \true \mid \false \mid \pred{p}(t_1, t_2, \ldots,t_n)\mid \policy_1\vee\policy_2 \mid \policy_1\wedge \policy_2 \mid\\
+& & \forall\vec{x}.(\policy_1\rightarrow\policy_2) \mid \exists\vec{x}.\policy\mid\\
+& & \foralle\;e.(\policy_1\rightarrow\policy_2)\mid \existse\;e.\policy
+\end{array}
+$
+\caption{Syntax of \planguage}\label{fig:logic}
+\end{figure}
+
+Given an input authorization state \state, an environment (or, request) $\eta$, and 
+a \planguage formula \policy, we use $\state, \eta\models\policy$ to represent that 
+the formula \policy is satisfied with respect to the state \state and environment $\eta$. 
+We can inductively define this as follows.\vspace*{-0.1in}
+\begin{itemize}\setlength{\itemsep}{0em}
+ \item $\state, \eta\models\true$ and $\state,\eta\not\models\false$ 
+ \item $\state, \eta\models\pred{p}(\vec{t})$ iff $\Gamma(\pred{p}(\eta(\vec{t}))) = \true$ 
+ \item $\state, \eta\models\policy_1\wedge \policy_2$ iff $\state, \eta\models\policy_1$ and $\state, \eta\models\policy_2$. 
+ \item $\state, \eta\models\policy_1\vee\policy_2$ iff $\state, \eta\models\policy_1$ or $\state, \eta\models\policy_2$. 
+ \item $\state, \eta\models\forall\vec{x}.(\policy_1\rightarrow\policy_2)$ iff for all $\vec{t}$  if 
+ $\state, \eta[\vec{x}\mapsto\vec{t}]\models\policy_1$ hold, then $\state, \eta[\vec{x}\mapsto\vec{t}]\models\policy_2$ holds. 
+ \item $\state, \eta\models\exists\vec{x}.\policy$ iff there exists $\vec{t}$ such that $\state, \eta[\vec{x}\mapsto\vec{t}]\models\policy$ holds. 
+ \item $\state, \eta\models\foralle\;e.(\policy_1\rightarrow\policy_2)$ iff for all entity $E$ in \state, if $\state, \eta[e\mapsto E]\models\policy_1$ holds 
+ then $\state, \eta[e\mapsto E]\models\policy_2$ holds. 
+ \item $\state, \eta\models\existse\;e.\policy$ iff there exists an entity $E$ in \state, such that $\state, \eta[e\mapsto E]\models\policy$ holds. 
+ \end{itemize}
+
 
 
 
