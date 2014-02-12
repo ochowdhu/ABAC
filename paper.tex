@@ -75,6 +75,7 @@
 \newcommand{\cR}{\ensuremath{\mathcal{R}}\xspace}
 \newcommand{\cA}{\ensuremath{\mathcal{A}}\xspace}
 \newcommand{\funcname}[1]{\textbf{\texttt{#1}}}
+\newcommand{\nonterm}[1]{\ensuremath{\mbox{\textbf{\texttt{#1}}}}\xspace}
 \newcommand{\dom}{\ensuremath{\Delta}\xspace} %domain
 \newcommand{\domop}{\funcname{opDom}\xspace} %domain
 \newcommand{\OP}{\ensuremath{\mathcal{OP}}\xspace}
@@ -95,6 +96,8 @@
 \newcommand{\existse}{\ensuremath{\funcname{EXISTS-ENTITY}}\xspace}
 \newcommand{\cV}{\ensuremath{\mathcal{V}}\xspace}
 \newcommand{\cW}{\ensuremath{\mathcal{W}}\xspace}
+\newcommand{\cE}{\ensuremath{\mathcal{E}}\xspace}
+\newcommand{\cC}{\ensuremath{\mathcal{C}}\xspace}
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
@@ -121,7 +124,7 @@
 \label{sec:model}
 Formally our abstract model, which we denote by \abac, has the following form 
 $\abac=\langle\cA, \cD_{\cA}, \dom,  \state, \policyfunc\rangle$. 
-We have an unbounded number of \emph{attribute names} (\eg, user-name, role), the set of which is denoted by, $\cA=\{a_1, a_2,\ldots\}$.  
+We have a countably infinite number of \emph{attribute names} (\eg, user-name, role), the set of which is denoted by, $\cA=\{a_1, a_2,\ldots\}$.  
 For each attribute name $a_i\in\cA$ where $i\in\mathbb{N}$, we have an associated, possibly infinite, domain $d_{a_i}$ (\eg, $\mathbb{N}$, 
 string, set of strings, list) from which $a_i$ can assume values from. 
 The set of all such domains are represented by $\cD_{\cA}=\{d_{a_1}, d_{a_2}, \ldots\}$.  Given an attribute 
@@ -134,11 +137,11 @@ appropriate domain. Formally, $\dom: \cA \rightarrow \cD_{\cA}$.
 % and $\domop(\op, i)$ is the domain of the operator for operand $i$, where $1\leq i\leq \arity(\op)$, 
 % and $\domop(\op)$ is the domain of the result of $\op$.
 
-Our model has an \emph{abstract authorization state}, which we denote by \state, that contains an unbounded number of entities. 
+Our model has an \emph{abstract authorization state}, which we denote by \state, that contains countably infinite number of entities. 
 An \emph{entity} is a total map, denoted by $\entity_j$, that maps attribute names to values from their appropriate domains.
 Formally, for any $\entity_j$, the following holds: $\forall x \in \cA.\; \entity_j(x) \in \dom(x) \cup \{\bot\}$. 
-An example of an entity could an object, a subject, a user, \etc As we want to facilitate existence of unbounded number 
-of users, objects, subjects, \etc, in our system, we allow to have unbounded number of entities. 
+An example of an entity could an object, a subject, a user, \etc As we want to facilitate existence of countably infinite number 
+of users, objects, subjects, \etc, in our system, we allow to have countably infinite number of entities. 
 We denote the set of all possible authorization states as \stateset. 
 
 A \emph{request}, $r$, is a finite sequence of attribute name-value pairs of form $\langle a_n, a_v\rangle$ 
@@ -196,30 +199,51 @@ $
 \begin{array}{lll}
 % \policyfunc(r, \state) & : & \langle\rho, \state'\rangle& &\\
 \funcname{begin}   & & \\
- c1 \leftarrow   \funcname{EVAL COND  } \policy_1 &  &\\[2ex]
-     \funcname{ON-TRUE}: & &\\
-       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
-       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
-     \funcname{ON-FALSE}: & &\\
-       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
-  \vdots & \vdots & \\[2ex]
- cn \leftarrow  \funcname{EVAL COND  } \policy_n &  &\\[2ex]
-     \funcname{ON-TRUE}: & &\\
-       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
-     \funcname{ON-FALSE}: & &\\
-       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
-       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
-       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\[2ex]
+ c1 \leftarrow   \funcname{EVAL COND  } \policy_1 &  &\\
+     \funcname{ON-TRUE}: & \funcname{<ACTION-LIST>} &\\
+%        &\funcname{<ACTION-LIST>}&\\
+     \funcname{ON-FALSE}: & \funcname{<ACTION-LIST>} &\\
+%         &\funcname{ACTION-LIST}&\\
+  \vdots & \vdots & \\
+ cn \leftarrow  \funcname{EVAL COND  } \policy_n &  &\\
+     \funcname{ON-TRUE}: & \funcname{<ACTION-LIST>} &\\
+%        &\funcname{ACTION-LIST}&\\
+     \funcname{ON-FALSE}: & \funcname{<ACTION-LIST>}&\\[2ex]
+%         &\funcname{ACTION-LIST}&\\
  \rho\leftarrow  \bigoplus(c_1,\ldots,c_n)  & &\\[2ex]
-     \funcname{ON-ALLOW}: & &\\
-       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
-     \funcname{ON-DENY}: & &\\
-       \funcname{SEARCH-COND}: &\funcname{ATOMIC-ACT-LIST}&\\
+     \funcname{ON-ALLOW}: & \funcname{<ACTION-LIST>}&\\
+%        &\funcname{ACTION-LIST}&\\
+     \funcname{ON-DENY}: & \funcname{<ACTION-LIST>}&\\
+%        &\funcname{ACTION-LIST}&\\
 \funcname{end}    & &
 \end{array}
 $
 \caption{Syntax of \cL.\label{fig:syntax}} 
 \end{figure}
+
+\begin{figure}[t]
+\centering
+\begin{small}
+$
+\begin{array}{lll}
+\funcname{<ACTION-LIST>} & ::= & \funcname{<CREATION-ACTION>} \funcname{<ACTION-LIST>}\mid\\
+& & \funcname{<OTHER-ACTION>}\funcname{<ACTION-LIST>}\mid\epsilon\\
+\funcname{<CREATE-ACTION>} & ::= & \text{``}\nonterm{CREATE ENTITY WITH}\text{''} \funcname{<ATT-VAL-LST>}\\
+\funcname{<OTHER-ACTION>} & ::= & \funcname{<SEARCH-COND>}\text{``:''}\funcname{<ATOMIC-ACT-LST>}\\
+\funcname{<ATOMIC-ACT-LST>} & ::= & \funcname{<ATOMIC-ACTION>}\funcname{<ATOMIC-ACT-LST>}\mid\epsilon\\
+\funcname{<ATOMIC-ACTION>} & ::= & \text{``}\nonterm{DELETE ENTITY}\text{''}\mid\text{``}\nonterm{INSERT}\text{''}\funcname{<ATT-LST>}\\
+& & \mid \text{``}\nonterm{DELETE}\text{''}\funcname{<ATT-LST>}\\
+& & \mid \text{``}\nonterm{UPDATE}\text{''}\funcname{<ATT-VAL-LST>}\\
+\funcname{<ATT-VAL-LST>} & ::= & \text{``(''}\funcname{<NAME>}\text{``,''}\funcname{<TERM>}\text{``)'' ``;''}\funcname{<ATT-VAL-LST>}\mid\\
+& & \text{``(''}\funcname{<NAME>}\text{``,''}\funcname{<TERM>}\text{``)''}\\
+\funcname{<ATT-LST>} & ::= & \funcname{<NAME>}\text{``,''}\funcname{<ATT-LST>}\mid\funcname{<NAME>}
+% & & \funcname{<NAME>}
+\end{array}
+$
+\end{small}
+\caption{Syntax of \funcname{<ACTION-LIST>}.\label{fig:syntax}} 
+\end{figure}
+
 
 We now informally describe the semantics of our language. The \policyfunc checks each policy rule $p_i$ by 
 evaluating its corresponding condition  $\policy_i$ with respect to the input request $r$ and the 
@@ -238,15 +262,19 @@ a policy combining function, $\bigoplus$, which has the signature $\bigoplus : 2
 \subsection{Syntax and Semantics of \planguage}
 \label{sec:condition}
 To specify the condition (\ie, $\policy_1$, \funcname{SEARCH-CONDITION}) in \cL we use a fragment of guarded first order predicate logic which we call \planguage. 
-The syntax of our language is given in Figure~\ref{fig:logic}. In \planguage, we have an infinite set of \emph{variables}, $\cV = \cV_{\cA} \cup \cW$, 
-where variables in $\cV_{\cA}$ correspond to attribute names in \cA. We use \cW to represent 
-a set of unrestricted variables. We have the \emph{domain} \cD from which variables in \cV can assume values (\ie, \emph{constants}) from. 
-We have $\cD = \cD_{\cA}\cup \cD_{\cW}$. We use $x, y, z$ to denote variables in our language. Any variable $x\in\cV_{\cA}$ 
-can only assume values from the domain $\cD_{\cA}$, whereas, any variable $y\in\cV_{\cW}$ can only assume values from the 
-domain $\cD_{\cW}$. We assume constants have rigid interpretation. 
+The syntax of our language is given in Figure~\ref{fig:logic}. In \planguage, we have an infinite set of \emph{variables}, $\cV = \cE \cup \cW$, 
+where variables in $\cE$ correspond to entities. We use \cW to represent 
+a set of unrestricted variables. We have the \emph{domain} \cD from which variables in \cV can range over.  
+We have $\cD = \stateset\cup \cD_{\cA}$. We use $x, y, z$ to denote variables in our language. Any variable $x\in\cE$  
+can only range over values in the domain $\stateset$, whereas, any variable $y\in\cW$ can only range over values in the 
+domain $\cD_{\cA}$. 
+We also have a countably infinite set of constants, denoted by \cC, where $\cC = \cA\cup \cD$. 
+Constansts in \cD have rigid interpretations whereas constants in \cA does not have rigid interpretations. 
+% We assume constants have rigid interpretation. 
 We have a  finite set of \emph{predicates} available to be used in our language, which we denote by \cP. We use 
 $\pred{p}, \pred{q}$ to denote predicates in our language. We have \emph{terms}, denoted by $t$, in our language which are either 
-\emph{variables} or \emph{constants}. We have the basic logical connectives ($\wedge, \vee$) and also have quantifiers ($\forall, \exists$). 
+\emph{variables}, \emph{constants}, or function symbols applied to terms. 
+We have the basic logical connectives ($\wedge, \vee$) and also have quantifiers ($\forall, \exists$). 
 We require a restricted form for universal quantifiers, \emph{guarded fragment}. For each universally quantified formula $\forall \vec{x}.(\policy_1\rightarrow\policy_2)$, 
 we require a guard (\ie, $\policy_1$). Note, we intentionally leave out the negation operator ($\neg$) from \planguage and this will be discussed 
 later. In \planguage, we additionally allow two specific kinds of quantifiers, \foralle and \existse. They are used to 
@@ -291,6 +319,7 @@ $
 Given an input authorization state \state, an environment (or, request) $\eta$, and 
 a \planguage formula \policy, we use $\state, \eta\models\policy$ to represent that 
 the formula \policy is satisfied with respect to the state \state and environment $\eta$. 
+We specifically have for any constant $c\in \cA$, $\eta(c)\in \dom(c)$.  
 We can inductively define this as follows.\vspace*{-0.1in}
 \begin{itemize}\setlength{\itemsep}{0em}
  \item $\state, \eta\models\true$ and $\state,\eta\not\models\false$ 
