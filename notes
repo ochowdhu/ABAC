@@ -248,6 +248,299 @@ OK..,.....
 
 
 
+Note : Feb 12, 2014
+Encoding of HRU:
+    
+We have subjects and objects. objects =) subjects. 
+We have a finite set of rights, R ={r1,..,rn}
+
+finally we have the commands:
+    commands are like following: 
+        (1) Take arguments...
+        (2) Have a condition...
+        (3) Have a unique name ..
+        (4) When the condition is satisfied a set of atomic actions...
+        (5) Atomic actions are of form: 
+            (i) CREATE PRINCIPAL/OBJECT
+      (ii) DELETE PRINCIPAL/OBJECT
+     (iii) ADD a right r in the cell M[s,o]
+     (iv) Remove a right r from the cell M[s,o]
+
+
+Conditions are a conjunction of atomic formula each of which has the following form:
+a in M[s, o]    
+
+
+Templates for entities:
+    Subject Entity:
+        {type=subject, id=..,}
+    Object Entity:
+    {type=object, id=...}
+Right Entity: 
+     {type=cell, sid=subject_id, oid= object_id, r1={true,false}, ....,rn={true,false}}    
+
+With the existentials, it might be easier to break up the rights, let's see...
+
+Atomic action: 
+    CREATE SUBJECT s:
+        CREATE entity with (type=subject), (id=s);
+        CREATE entity with (type=object), (id=s); 
+        ??? I was thinking to check for subject ids too when checking for object stuff, but let's see what's easier. :-) OK :D
+     fuck..How do I create all rows...I mean I need to create the right entities...for all objects...
+    Not with the GPL stuff. Because now you can check for existence first and create it upon ADD (so non-existence same as false)
+      EXISTS e1. FORALL e2.(e1(type) = cell /\ e1(sid) = s /\ e1(oid) = s)
+   What are you trying to do?
+   Writing search condition for the shit ...
+      Condition for what?
+      Actually creating cannot be under anything ...
+      OK lets ignore it for the time being ...
+      If you're talking about the adding of right entities: let's do this when doing ADD. Then it's a lot easier. OK ...But again I need a guarded create right???
+     Nope: you duplicate the policy rule... one for if a rights entity exists, then it's an update; one for if none exists, then it's an unconditional create
+     So we have two templates or ADD r ...
+   
+   GOT IT :-) 
+   
+    CREATE OBJECT o: 
+    CREATE entity with (type=object), (id=o); 
+        
+    DELETE SUBJECT s:
+        
+        ?(type=subject /\ id=s) : DELETE entity
+        ?(type=object /\ id=s) : DELETE entity
+        ?(type=cell /\ sid=s) : DELETE entity
+        
+        Question here is: do we delete the cells? I am not sure ...
+        What's the semantics in HRU? Like if I have DELETE then CREATE...
+        You delete the row ...
+        Makes sense ....
+        That should do it. Where ?() is the search condition... :-)
+        
+        
+    DELETE OBJECT o: 
+        ?(type=object /\ id=o) : DELETE entity
+        ?(type=cell /\ oid=o) : DELETE entity
+        Can it happen that we call that on a subject (which is implicitly an object, too)?
+        I mean if somebody tells us delete an object we delete the column
+        if somebody tells us delete a subject we delete the row..
+        For the case delete subject where subject = object ...We just delete the subject ..not the object ...vice versa...
+        Hm, OK. Is weird to me, but OK. To be honest with you, the semantics is not clear ...I mean in either case ..
+        the shit is not a major change ....Yeah, that's true
+        ONE of the things that has been bugging me....Tell me
+        I mean from what you wrote earlier...Do we need policy conditions for the atomic actions??? 
+        I do not think so. We will protect them this way, but we don't need them. Think of it as the HRU commands being a high-level language, and ours a low-level that we compile to... :-)
+        I mean then what I do not understand is the following: When we have insert a right into a cell. if the cell is non-existent, we create it. Now the question is how do you do it without 
+        guarding it or having a separate condition for adding it ...
+        Ok. I was thinking: basic is 1 command = 1 policy rule
+        Now what we can do is replicate: 1 command = x policy rules
+        Then you can put the existence of the cell entity into the policy condition...
+    OK got it. That is what I was thinking .....I mean the guard will be conjuncted with the policy condition itself...
+         Another question: what is the basic problem of having create as a guarded command?? Makes life easy and encoding concise...Else the encoding is a fucking mess :-) 
+         Sure you can do it. But you need to separate it from the others, because it's different semantics...
+         Different in what sense?? It is not a search condition...
+    It is just a normal condition...Question: I mean can the shitty search condition entity variable should be free? so that we can use it in the atomic action??
+Good question. Thing is that makes it very powerful. So I was trying to avoid it where possible. But yeah, for a really powerful model of course a binding semantics would be awesome... :-)
+If you have the binding, then it is kind of a guarded forall. So then you get back into questions about why it's undecidable, you know what I mean?
+I know exactly what you mean. I mean how else are we going to have the shitty entity used in our atomic thing??
+Oh, that's what you mean. OK, the entity itself is of course available. So in a sense we have exactly one binding already.
+     Hmm. interesting :-) 
+     Yeah, now that we talk about it, it's a little doubtful my simple explanations to myself were good... :-)
+     I mean then again...
+We need the binding, no matter what. The only other way:
+  It's not an action list, but an action expression language. But then also no bulk updates
+
+So you could do:
+   let storeType=get(type) in
+     let storeId=get(id) in ...
+       delete active entity
+       create entity <type=storeType,...>
+
+And have "active' entity be just one entity from somewhere
+
+It seems we need to do (2) first before we go do (3) 
+But starting at (3) was a good idea coz we exactly know what the fuck we need 
+I think it's a mix of 2 and 3. 2 alone is not good, as we need to design it so that HRU encoding keeps decidable in the right places... Which might mean that we change the encoding
+
+Yeah...
+
+I think currently it's more discussion about what we have. I'd hope just guarding the create is still enough.
+
+Do we have arguments why the implicit binding with the search condition is OK?
+
+I mean I see a definite problem. COrrect me if I am wrong. What you actually want is every entity that satisfy your search condition...then you want its binding...
+Which you are going to use for performing the atomic actions..
+Yes
+I mean decidability is out the window :-) I mean entity countably infinite...
+Do we really need countably infinite entities?
+Good question..How else are you going to handle unbounded user/object??
+Is that really necessary? At any point in time, you usually only see a bounded number.
+We could do finite but unbouded or just finite...Finite but unbounded is good enough. You just need to ensure that the state is finite at all times, but can grow arbitrarily
+Then...One good thing is that ...FOL...is decidable...oh. sorry no, we have functions..
+Damn..
+So that VTL has infinite x and is decidable. We can't derive anything from that?
+Ok
+Here was my thinking process:
+    (1) DOMAIN INFINITE : to handle unbounded shit ...
+    (2) LETS US USE MODE CHECKING :-) : I think we can use it for some other purpose ...for sure ..
+    (3) LETS US USE full-power of FOL: undecidability is easy to show ...
+    
+BUt then again: it is creating unnecessary hassles ....
+About finite domain VTL, we can actually derive some result, I guess..
+One problem though...
+Showing undecidability is never a problem... :-) Just the question of why it's undecidable and where that's coming from... :-)    
+Yeah that I figured...I agree...
+
+One thing I do not fully comprehend yet... Tell me.
+We should have infinite domain for attribute values. Do you agree?? How else are we going to say: domain is natural numbers...
+OK now that being said... when we want to check ... entity( attribute-name) = specific_attribute_value, how do we represent this as a proposition???? where the right hand shit could be a bounded variable...not a constant...
+Even with a constant...I mean there are countably infinite shit in the attribute value domain...Do we need one proposition for each value...if yes...we need infinite set of propositions....
+Comments??
+I know what you mean. In a sense we don't do boolean logic. But: presburger arithmetic is decidable. So simple integer stuff must be fine.
+I mean presburger arithmetic on sets is also decidable...Remember our attribute domain is shit-fully abstract ....
+So I think we just need to find the right formal name for what we're using. Then countably infinite is enough, as we can encode everything into N then and do equality tests explicitly.
+Is it decidable on sets over infinite domains?
+What presburger arithmetic???  You said "presburger ... on sets is also decidable"
+That came out wrong...I was asking a question.. I meant is it the case that it is decidable??
+Oh, haha.
+The good thing is: we actually only need finite sets for HRU. So there's definitely an encoding, e.g., bitmasks
+Yeah, I understand....
+
+Where were we?
+We were thinking about the implicit loops of the search condition and stuff, and how we would get around it possibly. :-)
+But I don't see a way. Else manipulation is really restricted.
+
+I think entities being finite, will make the loop terminate. So, decidability is alright. Moreover, presburge shit enables us to decidably check the equality...Hence We should be alright...
+Yes, if we take the state to be finite. I mean other than that I realize it does not make sense. I mean infinite state with explicit representation is not possible in real-life scenarios...
+Yeah, real-life of course. :-) But we can regain it with mode-checking, if the search condition fills all free variables, somehow, I mean, it's basically the guard in a forall (phi1 -> phi2)
+Just that phi2 has side effect. :-)
+Yeah....I mean does it effect the decidability??? I mean we can do phi2 being a different language for atomic actions ...The only free variables are controlled by the 
+mode checking judgements ...I mean in phi2..
+I have no clue what it practically means. :-) I mean mode checking by itself is weird. You stipulate that there's a way, e g., a sat-solver, that can give you all solutions out of an infinite search space if you have just enough input. In practice it's clear: you have a DB or so as backend to look up. But in theory: how the fuck does that work over abstract, actually infinite stuff? Why is that computable? You know what I mean?...
+
+I exactly know what you mean...
+So I kind of think of it this way: mode checking relies on the assumption (that axiom stuff) that simply says "Yeah it's computable". So in the end we can say the same: the state might have the property that given certain inputs, the entities can be effectively retrieved and are finite amount. Like indices or something.
+SOme kind key to a map..to find the value. The only problem is that it is an infinite map...
+Yeah.
+Anyways, back to encoding or to actions?
+So you want to guard the create. That's reasonable. Just separate the things syntactically so it's very easy to separate them semantically. :-)
+
+OK ...We can have ...
+
+<SPECIAL-CONDITION> <CREATE-STATEMENT>
+<SEARCH-CONDITION> <OTHER-STATEMENT> 
+
+Yeah, that makes sense.
+
+Now for the search condition...We want the entity to be a free variable with implicit universal quantification...
+Well, don't know about the implicit quantification. The whole condition + statement is kind of universally quantified, but the condition itself is not. It's just for an entity that is assumed to be bound to that one variable.
+
+I mean something like following: 
+    <e(type) = "subject"/\ e(sid) = input(sid)> : INSERT (s,s1), (r, r1), ....
+
+
+I would consider leaving out the quantifier, that might make it more intuitiv.
+Something like that, yeah. Maybe even without the leading e. Leave e simply free.
+The meaning of that whole thing would be:
+    For all entity e' in state Pi, if Pi , [e', input]  |= CONDITION, then execute action with e=e' and input
+Make sense?
+Now I come to think of it ....
+How can we check non-existence ...
+
+ <e(type) = "cell" /\ e(s) = input(s) /\ ...) : CREATE ENTITY with (s,s1), (r, r1) , ..., a lot of random shit ...
+
+I'd think so. If we have EXISTS for existence, then we might have \bar(EXISTS) 
+
+OK ...
+
+I mean question : If we are not explicitly...quantifying the "e", how the fuck do we know what we mean ...
+I mean which quantifer \EXISTS or \bar{\EXISTS}, same for universal ...
+No, no, no. OK. Maybe I wasn't clear.
+OK, EXISTS and \bar{EXISTS} and so on only make sense when comparing for something in the state.
+The non-quantified variable is for the entity we check whether we want it to be modified.
+
+Example: Add something
+
+I want to add attribute-value a/b to entity with id=X
+In the state are entities <id=q,..>,<id=r,...>,<id=X,...>
+What I envisioned the search condition doing:
+    Take each entity in the state. Bind it to "e", evaluate the search condition. If the condition is true, use this entity for whatever the commands say.
+
+<e(type) = "subject"/\ e(sid) = input(sid)> : INSERT (s,s1), (r, r1), ....    
+So I can write that update as:
+    ?( e(id)=X ) : INSERT(a,b)
+    
+What that will do semantically:
+    Test whether e=<id=q,...> satisfies the search condition
+    
+    I understand this ....I mean very clearly
+    So e doesn't need to be bound.
+    
+    Now if you want to compare against other elements in the state, then you need quantifiers. Like "update the one with the highest salary"
+    Then you'd write ?(forall e'. e'(salary) <= e(salary) ) : ...
+    
+Understood ...very well :-) 
+So the only thing is we need _one_ dedicated variable for this. Then the semantics is clear. It is either the substitution semantics or your environment semantics.
+Got it bosss...
+I mean I was thinking more of the line for CREATE ENTITY ....
+OK, yeah. That is why you need the difference. :-) That whole thing of course doesn't make sense for CREATE. That one should likely simply be the same semantics of the rule condition. No implicit "e"
+Yeah mang :-) Works for me ...
+OK I should break
+Take a dump...Then get ready for the meeting..
+Don't make a mess. :-)
+Not my restroom..Why do you think I care??
+Because you're still a polite and decent person?
+
+Anyways. Good luck.
+I expect you'll be disappointed. But hope dies last...
+
+lol :-) I am most probably gonna write down the shit ...
+One last thing before I go...
+I mean these atomic actions semantics ...Can we just say that these shit are all fucking dependent on fucking domain of the attribute value ....
+I mean INSERT means replace for atomic, union for set, append for list ...
+Yeah, I think that is perfectly fine. You say it has some computable meaning, with the expected being ...
+
+OK
+Now the condition .....
+In the conditions do we need to check subset and shit?? or substring or my ass ?? 
+We need membership, maybe, depending on encoding of sets. You had your role sets in sessions, too. So that might be necessary.
+
+Again with the stipulation that they are finite it's easy.
+
+Now I come to think of it ...Roles can single attribute ...with domain true, false, bot ....
+That needs you to refer to attributes names as computed values. Right now the e(x) has x as a "constant"
+To write meaningful policies, you'd likely need that to also take a variable or even expression
+
+Exactly :-) OK More later...dump coming ....
+You don't care about your office either, so just let it go. :-)
+
+OK.
+Ping me.
+I'll be driving to Rocky's from 4 to 5 (or Apostolos will)
+So we could keep chatting.
+Though no Etherpad on the phone...
+
+
+    ADD r to the cell M[s, o]
+    
+      CASE 1: cell with sid=s and oid=o exists
+      CASE 2
+        
+    DELETE r from the cell M[s, o]
+
+
+
+Note:
+(1) Distributed systems (scope our work to centralized system or mention shit is abstracted away)
+(2) Role, user, attribute, object hierarchy ...
+(3) Attribute inference ....
+(4) Attribute creation and deletion ...
+(5) Infinite number of entities?? 
+(6) Think about group shit ...
+(7) Examples ...
+(8) Encoding of other access control models..
+(9) Environment ..
+(10) patient policies ...
+(11) constraints ...
+
 
 
 
