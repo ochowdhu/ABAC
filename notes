@@ -543,8 +543,18 @@ Note:
 
 
 
+Look for a fixed-point logic ...First order fixed point would be nice ...
+Note that given ground instances ... we are going to check whether it is 
+satisfied ... We are not going to check whether some specific formula is 
+valid or not ...
 
+Make request an entity too....But then comes the shit about whether they 
+are also stored in the state ....May be we can delete it at the end of the 
+execution of the policy function ...Again the question is ...
 
+For convenience, we assume request to be an entity too. However, this is an 
+special kind of entity which is not stored as part of the authorization state 
+and also the creation and deletion of it is unrestricited and out of the scope. 
 
 
 
