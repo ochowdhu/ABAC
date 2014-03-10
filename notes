@@ -557,8 +557,15 @@ special kind of entity which is not stored as part of the authorization state
 and also the creation and deletion of it is unrestricited and out of the scope. 
 
 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Policy Machine Model 
+Policy Combination ...
+Policy Consistency ...
+Language for Policy Decision Combination ...Now it is kept abstract ....
 
-
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 
