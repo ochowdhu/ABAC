@@ -569,6 +569,173 @@ Language for Policy Decision Combination ...Now it is kept abstract ....
 
 
 
+Notes : March 11, 2014 ...
+The goal I had in mind till now is the following: 
+    
+    Have an abstract model and an abstract language....
+    Then instantiate this abstract model and language 
+    with concrete instantiation, something like Ninghui's 
+    and show that different well-known AC models can 
+    be captured in these concrete model. 
+    
+    We prove safety and some other analysis problems 
+    for these concrete models. I am thinking most of them 
+    will be either intractable (or, undecidable).  I agree.
+    
+    
+    We have already come up with an abstract model 
+    We kind of came up with an abstract language
+    But it is not yet done ...
+    
+    I mean the question I have is how abstract is abstract enough 
+    but still is meaningful to have kind of idea about what is going 
+    on. 
+    
+    I mean for consistency checking and shit ...We need a language 
+    for the policy combining function which is the (+) in the language. 
+    
+    I mean I also want kind of an access control scheme which will be 
+    a tuple <....,language(some logic for expressing the conditions)> 
+    I understand what you mean and agree.
+    This also gives a good way to classify schemes. And hopefully
+    allows simple complexity hierarchies.
+    
+    This will enable us to have the concrete model without having to 
+    explain what is happening. For instance, 
+    
+    Perfect !!!! 
+    As usual, the devil is in the details. :-) As in: what is a good basic
+    instantiation...
+    
+    What would be great is if we can show lots of things for a very simple scheme.
+    Where we can basically map domains to N, and have a simple thing like the Presburger
+    thing we talked about for the logic.
+    
+    (Great is viewpoint dependent. If we show safety is undecidable there already... :-) )
+    
+    Understood
+    
+    Say this is the most general model....OK
+    <A, D_A, \delta, \pi, \psi, L(logic, {creation, deletion, update})> 
+    
+   The first concrete model Ninghui had does not have any state associated with it...
+   
+   In which case it will be: 
+       This is S_0 or M_0
+       <A, D_A, \delta, EMPTY, \psi, L(proposition logic, {})>  
+       
+  I don't see where that simplifies significantly in our model, as we might be able to encode all
+  that \pi shit into tuples...
+  Can you explain why you think it makes things simpler?
+  
+I mean this is a static policy that only checks whether the request attributes-values matches with some 
+constants ....
+
+You have no state ...no atomic actions ....Just check condition which is a boolean combination of 
+equalities ....???
+
+Request(user-id) == "omar" /\ Request(role-id) == "Doctor" /\ Request(object-id) == "Prescription" 
+Is 'Request" the only thing that makes this FOL?
+Actually fuck
+I made a mistake it should only be propositional logic ....Now ???
+OK.
+I can see that.
+This is basically what XACML allows ....Static shit ...
+I thought it has "entrypoints' for the environment. No functions or predicates?
+You mean XACML??? Yes.
+
+I mean it has PIP ...which gather attributes ...But the fucking policy rules 
+are in general staticc ....Does not tell you how to handle dynamic conditions or no side effects except obligations ...
+But it means the meaning of the policy can vary, doesn't it?
+Hmmm
+I mean but it is kept as abstract ...
+I kind of know what you mean. I am just asking. Because depending on the power of those PIP things,
+the power of the policy changes.
+Say you have a simple predicate p(x,y) in your policy.
+That might be something trivial like ==, or it might be the halting problem.
+That's why I'm never too sure about this. But I understand that this is the weakest category. At least if you fix
+for computable predicates as in PIP.
+
+Let me double check something real quick. I understand what you mean....
+
+YEah....You are right...A better example is firewall policies ....
+
+Where you provide source and destination information and tell you whether something is allowed .....
+XACML cannot be viewed as the concrete instantiation of this model ....unless you fix the predicates 
+to be decidable ....Moreover, Assuming PIP is outside the system's model ....But that is a discussion 
+we should not get into. Firewall policies are alright examples of this model. 
+OK, sounds good.
+
+QUestion: What would be safety for this model :-) 
+Good question. :-) What did Ninghui do? :-)
+He does not have anything related to safety ....
+I mean safety does not make sense IMHO ....
+We can ask questions like the ones we talked about last night ...
+Will this guy have access to this shit ...provided that his shit (attributes)  does not change ....
+Yes.
+But it should be very unimpressive, it seems. :-)
+Yeah :-) 
+You can do it in linear time of the policy rules :-) 
+:-) Great, we have a P model. :-) hahahah :-) Tell me about it ...Everything is static ...
+
+What would be the natural expansion? Actions or state?
+
+I mean the next progression???? 
+
+M_1/S_1/or my_ass_1 whatever: 
+You can have append shit ...that is create shit....+ you need state .... (IMMUTABLE MODEL)
+OK.
+What's your guess at complexity of safety?
+
+Monotonic system ...There is classic result for it ....Let check real quick ...
+
+Decidable ...in NP possibly...HRU for monotonic shit is decidable but intractable ...
+That seems a good progression, though. Not too big a jump.
+Yeah...Our system is mono-operational and monotonic, right ???
+Mono-operational in the sense that it only allows creation ...Hence it should be in NP ....I Mean decidable ...
+We should investigate for NP.
+Else I agree with you. Algorithm is likely the one for Chomsky-1 languages: just generate states, which will
+always increase.
+Though you'd have to assume that from each state there are only finite number of successors.
+(or at least you only need to investigate a final number)
+Yeah ....I understand ...
+
+Anyhow M_2/S_2/or MY_ASS_2 is MUTABLE ...
+ <A, D_A, \delta, \pi, \psi, L(FOL, {creation, deletion, update})> 
+ 
+ This should be easy to show that the fuck is undecidable :-) Likely. :-)
+
+OK. Are we doing the progression that we sketched out before?
+
+Then we can go one level up ...
+
+M_3/S_3/ ....
+ <A, D_A, \delta, \pi, \psi, L(FOL + FIXED POINT OPERATOR, {creation, deletion, update})> 
+ 
+ FOR FOL, I am thinking about loosely-guarded fragment ....
+ 
+ FORALL x.( /\atomic-formula -> formula) ...
+EXISTS  x.( /\atomic-formula /\ formula) ...
+
+This is generally decidable + expressive enough ....Other decidable fragments are not expressive enough ....
+OK, I have to defer to your knowledge and judgment here.
+
+But fucking fixed point logic ...shits it up :-) 
+ Without fixed point operators we cannot express fucking Role-based access control ...I mean the hierarchical ones ...
+ This is what I am worried about ...
+ Yeah, I know.
+ 
+This needs figuring out ...I will do it ...
+
+Finally, We were talking about expression language for the shit ........
+May be I should do this first and talk to you about it over the weekend. 
+
+I mean write out everything then talk about it over the weekend...Hence 
+I will have more concrete questions ...
+
+That sounds reasonable.
+I think to remember we started trying to instantiate some models.
+I think the expression language goes into this direction and would give us hints on what we might be missing.
 
 
 
