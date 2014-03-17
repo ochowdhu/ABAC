@@ -738,6 +738,159 @@ I think to remember we started trying to instantiate some models.
 I think the expression language goes into this direction and would give us hints on what we might be missing.
 
 
+March 17th, 2014
+++++++++++++++++
+=============================================================================================================
+
+OK: We denote policy function by \Psi. \Psi is parameterized. 
+
+\Psi( L_c, L_pc, A) :-
+L_c => Language for expressing conditions 
+L_pc => Language for policy combination 
+A => Set of allowed atomic actions (create, destroy, insert, delete, update) 
+
+The semantics of A is defined by the domain of the attribute name: set, atomic, list .... 
+
+
+
+begin
+c1  <= EVAL COND ϕ1
+ON-TRUE : <ACTION-LIST>
+ON-FALSE : <ACTION-LIST>
+...
+...
+cn  <= EVAL COND ϕn
+ON-TRUE : <ACTION-LIST>
+ON-FALSE : <ACTION-LIST>
+
+ρ <=  L(c1, . . . , cn)
+
+ON-ALLOW : <ACTION-LIST>
+ON-DENY : <ACTION-LIST>
+end
+
+
+<ACTION-LIST> ::=   <CREATION-ACTION><ACTION-LIST> 
+                                   | <OTHER-ACTION><ACTION-LIST> | Empty
+                  
+<CREATE-ACTION> ::= <SOME-COND> “CREATE ENTITY WITH ” <ATT-VAL-LST>
+
+<OTHER-ACTION> ::= <SEARCH-COND> “:” <ATOMIC-ACT-LST>
+
+<ATOMIC-ACT-LST> ::= <ATOMIC-ACTION> <ATOMIC-ACT-LST> | Empty
+
+<ATOMIC-ACTION> ::=   “DELETE ENTITY” 
+                    | “INSERT”<ATT-VAL-LST>
+                    | “DELETE”<ATT-LST>
+                    | “UPDATE”<ATT-VAL-LST>
+
+<ATT-VAL-LST> ::=   “(”<NAME>“,”<TERM>“)” “;”<ATT-VAL-LST> 
+                  | “(”<NAME>“,”<TERM>“)” 
+                  
+<ATT-LST> ::= <NAME>“,”<ATT-LST> | <NAME>
+
+This seems reasonable to me. Questions would now be about semantics, mainly the separate action lists. For example, do the action lists of c1-cn
+get executed immediately, or when the final ON-ALLOW/DENY is done.
+
+The separate action list is useful for logging purposes. When you are trying to create an entity, it will be effected in the final 
+ON_ALLOW: block 
+
+You can say stuff like, if anybody satisfies or falsifies certain condition, I want to log this information ...
+Then you can use the regular shit. .....
+But now I come to think of it...I am not at all sure....whether this is of any use?
+
+What do you say? 
+I think it's OK. But it doesn't answer my question. :-) Or at least you're talking around it. So assume the condition for c1 is true. Do you execute the actions,
+no matter ON-ALLOW or ON-DENY?
+
+The idea is if a condition is true/false, the corresponding action of the true/false block will get executed...
+It is independent of the final decision (ALLOW/DENY)
+This is the semantics I had in mind ...Hence the logging example ....
+This answers your question? 
+Yes. Thanks.
+
+Now, two things.....
+
+How would the condition for the create entity would look like?
+
+Answer: 
+               FORALL_e e. (e(name) != r(name) \/ e(sid) != r(sid)). : create entity E_new 
+                                       
+What are you trying to encode here?
+Actually I do not see anything :-) 
+I was thinking about the old syntax ....
+I was thinking: after a create entity you would need a insert command which has a search condition in it. 
+Now I am come to think of it... it is not actually necessary....because create entity takes arguments for attribute values 
+with which he needs to create the entity...That kind of solves the initial problem I thought we had ....
+Yes. You need parameters, else we have weird "uninitialized" tuples. You can work around that, but it's simply a lot easier
+and cleaner to just give parameters.
+One more question: What should be the syntax for the guard of the create command: 
+    Just like the condition in the rules...A closed formula in L_c ???? 
+    I think it is just a regular condition like in all the other things. I am not sure about closed. Closed might be too restrictive as
+    you can't match against existing tuples. If you can't match, you can't write generic rules. Like: if there is a patient with name x,
+    create a patient record with name x. You know what I mean? You would have to encode that into the request...
+
+I have a question then. If the condition guarding the create command is exactly like the search condition, why are we differentiating between CREATE entity and other atomic actions? 
+Good question. Did we write down a reason before? :-)
+
+Let me check our notes, real quick :-) 
+
+Nope, it seems we did not write down a reason ....We were going on Tangantial discussion ....LET ME LOOK A LITTLE MORE DEEPLY.................. :-)
+
+ OMAR: Another question: what is the basic problem of having create as a guarded command?? Makes life easy and encoding concise...Else the encoding is a fucking mess :-) 
+ANDREAS:         Sure you can do it. But you need to separate it from the others, because it's different semantics..
+
+Something to do with the HRU encoding ..... ????
+Crap, I don't remember. :-) Oh, I think the thing was:
+    
+    The normal semantics is that you _repeat_ the condition for every tuple in the state, and when it applies, execute the commands. This way you can do
+    bulk update and delete. But you don't want that for CREATE. So the condition looks exactly the same, but the meaning is different. I think that was it.
+
+Boss. I do not get it. ..........I mean the semantics.... Let me tell you where ......
+You are saying : for all non-create we want bulk operations ...which can be done by universally iterating over the entities ....which makes sense ...
+Now for the CREATE shit: You first evaluate the condition fully ??? then do the create ....???Tell me the create shit again please ....
+OK. Before we somehow had that stuff like UPDATE and DELETE should be able to apply to multiple tuples in one go. That is done by
+implicitly looping over all tuples in the state, binding it, evaluating the condition, and if it applies, executing the actions.
+
+Now, for create, it seems that the usual meaning is that you want to create _exactly one_ new tuple. So any looping is not what we want.
+
+Then we basically want a closed formula with the language L_C => same language as the rule condition 
+I think so. Difference seems to be open vs closed. But even if it is closed, you need to say you're not iterating. Else the closed formula will
+trivially apply to all tuples in the state if it is true, and you might create that many new tuples (except if we can enforce that the new tuples
+are all the same, and set semantics takes care of duplicates). But yes, the base language could be exactly the same.
+
+Maybe it is actually easier to postpone that to the discussion of the semantics, and have the syntax uniform. As it does look identical...
+
+Let me read what you wrote:  "But even if it is closed, you need to say you're not iterating" => what do you mean by this???
+OK. So iterating is meaningful if you can somehow remember something for the current iteration. Your loop counter. In a sense,
+that is a predefined variable in the formula, like the "e" you had, and it should be preserved between condition and action execution.
+Only then can you meaningfully delete crap, for example. "I want to delete all tuples with name=Omar".
+
+OK. Now one could think that if a formula is closed, that is, is not using this binding mechanism, it doesn't want to iterate. The create,
+for example, doesn't need to. If you want to create a single static tuple. Like: "If the request says create Omar, create Omar." Doesn't
+use the iterator variable. So it is, in a sense, closed.
+
+But you would still have to say that you are not iterating over the tuples in the state. Else the closed formula applies to all of them if it is satisfied by itself.
+
+Got it ....Perfectly .... But what about we want to create shit in Bulk?? like sessions??? What then??? 
+OK, I have no example. Can you write one, while I run to the restroom? :-)
+
+
+
+How would the search condition for the insert/delete/update would look like???
+
+Answer: 
+    (e(name) = $name /\ e(sid) = $sid /\ e(salary) >= $salary : update (e.salary, 10K) 
+
+e is universally quantified ...quantifies the entities in the state 
+$salary => value of salary mapped by the request ... 
+
+Sounds good to me.
+If you want to go without variables, you could define a name for the request tuple and make it x(salary).
+OK. sounds good to me. 
+
+Now we were talking about expression language. Is that for the create entity shit .... 
+
 
 
 
