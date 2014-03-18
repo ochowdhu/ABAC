@@ -922,9 +922,9 @@ Right Entity:
 CREATE PRINCIPAL : 
 
 FORALL_ENTITY e1.( e1(type) = subject => e1(id) != R(id) ) : 
-CREATE ENTITY WITH (type, subject) ; (id , R(id)) 
+    CREATE ENTITY WITH (type, subject) ; (id , R(id)) 
 
-e(type) = object => e(id) = R(id) :
+EXISTS_ENTITY e1. e1(type) = object => e1(id) = R(id) :
     CREATE ENTITY WITH (type, object) ; (id, R(id)) 
 
 e(type) = object : 
@@ -938,7 +938,7 @@ e(type) = subject:
 CREATE OBJECT:
 
 FORALL_ENTITY e1.( e1(type) = object => e1(id) != R(id) ) : 
-CREATE ENTITY WITH (type, object) ; (id , R(id)) 
+       CREATE ENTITY WITH (type, object) ; (id , R(id)) 
 
 e(type) = subject: 
     CREATE ENTITY WITH (type, cell) ; (oid, R(id)) ; (sid, e(id)) 
@@ -953,7 +953,7 @@ e(type) = object /\ e(id) = R(id) :
     DELETE ENTITY e ;
 
 e(type) = cell /\ ( e(sid) = R(id) \/ e(oid) = R(id)): 
-DELETE ENTITY e; 
+    DELETE ENTITY e; 
 
 
 DELETE OBJECT:    
@@ -962,17 +962,17 @@ e(type) = object /\ e(id) = R(id) :
     DELETE ENTITY e ;
 
 e(type) = cell /\  e(oid) = R(id): 
-DELETE ENTITY e; 
+    DELETE ENTITY e; 
 
 
 
 ADD a right "r" to the cell M[s, o]:
 
 e(type) = cell /\ e(sid) = R(sid) /\ e(oid) = R(oid): 
-INSERT INTO e VALUE (permission_set, e(permission_set) UNION {R(right)}
+    INSERT INTO e VALUE (permission_set, e(permission_set) UNION {R(right)}
 
 REMOVE a right "r" to the cell M[s, o]:
 
 e(type) = cell /\ e(sid) = R(sid) /\ e(oid) = R(oid): 
-UPDATE e WITH VALUE (permission_set, e(permission_set) SETMINUS {R(right)}
+    UPDATE e WITH VALUE (permission_set, e(permission_set) SETMINUS {R(right)}
 
