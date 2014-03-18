@@ -892,5 +892,87 @@ OK. sounds good to me.
 Now we were talking about expression language. Is that for the create entity shit .... 
 
 
+====================================================================================================
+ENCODING OF HRU IN OUR MODEL 
+====================================================================================================
+EACH COMMAND WILL BECOME ONE POLICY RULE ...
 
+R is the request ...
+
+R(command_name) = "C_1" /\ additional condition (see below) ....
+
+Condition of the form  "r in M[s, o]" will be translated to : 
+EXISTS_ENTITY e1. e(type) = cell /\ e(sid) = R(sid) /\ e(oid) = R(oid) /\ {R(r)} \subseteq e(permission_set)
+
+
+ON_PERMIT and ON_DELAY block will be empty ....
+
+POLICY COMBINATION FUNCTION WILL BE A DISJUNCTION OF ALL THE COMMANDS ....
+===========================================================================================================
+
+Templates for entities:
+    Subject Entity:
+        {type=subject, id=..,}
+    Object Entity:
+    {type=object, id=...}
+Right Entity: 
+     {type=cell, sid=subject_id, oid= object_id, available_permissions={...}}    
+
+
+CREATE PRINCIPAL : 
+
+FORALL_ENTITY e1.( e1(type) = subject => e1(id) != R(id) ) : 
+CREATE ENTITY WITH (type, subject) ; (id , R(id)) 
+
+e(type) = object => e(id) = R(id) :
+    CREATE ENTITY WITH (type, object) ; (id, R(id)) 
+
+e(type) = object : 
+    CREATE ENTITY WITH (type, cell) ; (sid, R(id)) ; (oid, e(id)) 
+
+e(type) = subject: 
+    CREATE ENTITY WITH (type, cell) ; (oid, R(id)) ; (sid, e(id)) 
+
+
+
+CREATE OBJECT:
+
+FORALL_ENTITY e1.( e1(type) = object => e1(id) != R(id) ) : 
+CREATE ENTITY WITH (type, object) ; (id , R(id)) 
+
+e(type) = subject: 
+    CREATE ENTITY WITH (type, cell) ; (oid, R(id)) ; (sid, e(id)) 
+
+
+DELETE PRINCIPAL: 
+
+e(type) = subject /\ e(id) = R(id) : 
+    DELETE ENTITY e ;
+
+e(type) = object /\ e(id) = R(id) : 
+    DELETE ENTITY e ;
+
+e(type) = cell /\ ( e(sid) = R(id) \/ e(oid) = R(id)): 
+DELETE ENTITY e; 
+
+
+DELETE OBJECT:    
+
+e(type) = object /\ e(id) = R(id) : 
+    DELETE ENTITY e ;
+
+e(type) = cell /\  e(oid) = R(id): 
+DELETE ENTITY e; 
+
+
+
+ADD a right "r" to the cell M[s, o]:
+
+e(type) = cell /\ e(sid) = R(sid) /\ e(oid) = R(oid): 
+INSERT INTO e VALUE (permission_set, e(permission_set) UNION {R(right)}
+
+REMOVE a right "r" to the cell M[s, o]:
+
+e(type) = cell /\ e(sid) = R(sid) /\ e(oid) = R(oid): 
+UPDATE e WITH VALUE (permission_set, e(permission_set) SETMINUS {R(right)}
 
